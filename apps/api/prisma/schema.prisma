@@ -1,14 +1,55 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "cockroachdb"
   url      = env("DATABASE_URL")
+}
+
+model comments {
+  id        BigInt  @id(map: "comments_pk") @default(autoincrement())
+  text      String?
+  author_id BigInt  @default(autoincrement())
+  post_id   BigInt  @default(autoincrement())
+  posts     posts   @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "comments_posts_id_fk")
+  users     users   @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "comments_users_id_fk")
+}
+
+model groups {
+  id   BigInt  @id(map: "groups_pk") @default(autoincrement())
+  name String?
+}
+
+model groups_users {
+  user_id  BigInt @default(autoincrement())
+  group_id BigInt @default(autoincrement())
+
+  @@id([group_id, user_id], map: "groups_users_pk")
+}
+
+model posts {
+  id        BigInt     @id(map: "posts_pk") @default(autoincrement())
+  author_id BigInt     @default(autoincrement())
+  title     String?
+  content   String?
+  comments  comments[]
+  users     users      @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "posts_users_id_fk")
+}
+
+model profile_info {
+  id       BigInt @id(map: "profile_info_pk") @default(autoincrement())
+  user_id  BigInt @default(autoincrement())
+  metadata Json?
+  users    users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "profile_info_users_id_fk")
+}
+
+model users {
+  name         String?
+  id           BigInt         @id(map: "users_pk") @default(autoincrement())
+  email        String?
+  password     String?
+  comments     comments[]
+  posts        posts[]
+  profile_info profile_info[]
 }
