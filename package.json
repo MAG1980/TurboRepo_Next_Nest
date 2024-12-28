@@ -7,12 +7,7 @@
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "prepare": "husky install",
-    "lint-staged": "lint-staged"
-  },
-  "lint-staged": {
-    "*.{js, jsx,ts,tsx}": [
-      "npm run lint"
-    ]
+    "pre-commit": "turbo lint-staged"
   },
   "devDependencies": {
     "husky": "^8.0.0",

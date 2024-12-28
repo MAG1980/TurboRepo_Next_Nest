@@ -8,7 +8,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint --max-warnings 0",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "lint-staged": "lint-staged"
+  },
+  "lint-staged": {
+    "app/*.{js, jsx,ts,tsx}": [
+      "npm run lint"
+    ]
   },
   "dependencies": {
     "@repo/ui": "*",
