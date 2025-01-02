@@ -13,9 +13,9 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  //LocalStrategy.validate вызывается при каждом запросе AuthGueard
+  //LocalStrategy.validate вызывается при каждом запросе AuthGuard.
   //В случае успешной проверки соответствия пароля и логина, возвращается объект пользователя,
-  //который передается в AuthGueard и добавляется к объекту запроса в виде свойства:  request.user
+  //который передается в AuthGuard и добавляется к объекту запроса в виде свойства:  request.user
   async validate(email: string, password: string) {
     return await this.authService.validateLocalUser(email, password);
   }
