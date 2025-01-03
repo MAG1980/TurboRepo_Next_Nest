@@ -1,12 +1,12 @@
 import { FormState } from '@/lib/types';
-import { SignUpFormSchema } from '@/lib/schemas';
+import { SignupFormSchema } from '@/lib/schemas';
 import { redirect } from 'next/navigation';
 
 export const signUp = async (
   state: FormState,
   formData: FormData
 ): Promise<FormState> => {
-  const validationFields = SignUpFormSchema.safeParse({
+  const validationFields = SignupFormSchema.safeParse({
     name: formData.get('name'),
     email: formData.get('email'),
     password: formData.get('password'),
@@ -19,7 +19,7 @@ export const signUp = async (
   }
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/signup`,
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/signup`,
     {
       method: 'POST',
       headers: {
