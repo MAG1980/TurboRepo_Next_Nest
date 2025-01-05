@@ -1,20 +1,9 @@
-"use server"
-import { jwtVerify, SignJWT } from "jose";
+'use server'
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { SignJWT } from "jose";
+import { encodedSecretKey } from "@/lib/session/encodedSecretKey";
+import type { Session } from "@/lib/session/Session.type";
 
-export type Session = {
-  user: {
-    id: string,
-    name: string,
-  },
-  // accessToken: string,
-  // refreshToken: string
-}
-
-//Кодируем секретный ключ
-const secretKey = process.env.SESSION_SECRET_KEY
-const encodedSecretKey = new TextEncoder().encode(secretKey)
 
 /**
  * Сохранение полезной нагрузки в httpOnly cookie с названием session
@@ -46,29 +35,4 @@ export const createSession = async (payload: Session) => {
     //Указывает путь, который должен существовать в запрашиваемом URL-адресе, чтобы браузер отправил заголовок Cookie.
     path: '/'
   })
-}
-
-/**
- * Извлечение полезной нагрузки из httpOnly cookie с названием session
- */
-export const getSession = async (): Promise<Session | null> => {
-  const cookieStore = await cookies()
-
-  //Извлекаем JWT-токен, хранящий полезную нагрузку, из cookie с названием session
-  const signedString = cookieStore.get('session')?.value
-
-  if (!signedString) {
-    return null
-  }
-
-  try {
-    const { payload } = await jwtVerify(signedString, encodedSecretKey, {
-      algorithms: ['HS256']
-    })
-
-    return payload as Session
-  } catch (error) {
-    console.error("Failed to verify the session: ", error)
-    redirect('/auth/signin')
-  }
 }

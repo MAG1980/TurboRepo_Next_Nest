@@ -1,6 +1,6 @@
 import { FormState } from '@/lib/types';
 import { SigninFormSchema } from '@/lib/schemas';
-import { createSession } from "@/lib/session";
+import { createSession } from '@/lib/session/createSession';
 import { redirect } from "next/navigation";
 
 export const signIn = async (
