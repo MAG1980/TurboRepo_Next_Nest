@@ -1,5 +1,7 @@
 import { FormState } from '@/lib/types';
 import { SigninFormSchema } from '@/lib/schemas';
+import { createSession } from "@/lib/session";
+import { redirect } from "next/navigation";
 
 export const signIn = async (
   state: FormState,
@@ -28,9 +30,15 @@ export const signIn = async (
   );
 
   if (response.ok) {
-    const result = response.json();
-    //TODO: Create the session for authenticated user
-    console.log({ result });
+    const result = await response.json();
+
+    await createSession({
+      user: {
+        id: result.id,
+        name: result.name
+      }
+    })
+    redirect('/')
   } else {
     return {
       message:
