@@ -1,8 +1,8 @@
 'use server'
 import { cookies } from "next/headers";
 import { SignJWT } from "jose";
-import { encodedSecretKey } from "@/lib/session/encodedSecretKey";
-import type { Session } from "@/lib/session/Session.type";
+import type { Session } from "@/lib/session";
+import { getEncodedSecretKey } from "@/lib/session";
 
 
 /**
@@ -18,7 +18,7 @@ export const createSession = async (payload: Session) => {
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime("7d")
-    .sign(encodedSecretKey)
+    .sign(await getEncodedSecretKey())
 
   const cookieStore = await cookies()
   //Устанавливаем JWT-токен, хранящий полезную нагрузку, в cookie с названием session

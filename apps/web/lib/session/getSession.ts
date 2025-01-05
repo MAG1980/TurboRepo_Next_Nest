@@ -2,8 +2,7 @@
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
 import { redirect } from "next/navigation";
-import { Session } from "@/lib/session/Session.type";
-import { encodedSecretKey } from "@/lib/session/encodedSecretKey";
+import { Session, getEncodedSecretKey } from "@/lib/session";
 
 /**
  * Извлечение полезной нагрузки из httpOnly cookie с названием session
@@ -19,7 +18,7 @@ export const getSession = async (): Promise<Session | null> => {
   }
 
   try {
-    const { payload } = await jwtVerify(signedString, encodedSecretKey, {
+    const { payload } = await jwtVerify(signedString, await getEncodedSecretKey(), {
       algorithms: ['HS256']
     })
 
