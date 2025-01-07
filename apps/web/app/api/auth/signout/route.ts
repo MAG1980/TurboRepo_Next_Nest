@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
   await deleteSession();
 
   //Очистка кеш домашней страницы
-  await revalidatePath('/', 'layout');
+  await revalidatePath('/');
   const url = new URL('/', req.nextUrl);
   return NextResponse.redirect(url);
 }
