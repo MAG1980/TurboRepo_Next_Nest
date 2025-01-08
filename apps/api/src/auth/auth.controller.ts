@@ -2,7 +2,7 @@ import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
-import { bigintStringify } from "../../helpers/bigint.stringify";
+import { bigintStringify } from '../../helpers/bigint.stringify';
 
 @Controller('auth')
 export class AuthController {
@@ -16,10 +16,7 @@ export class AuthController {
   //При запросе POST /auth/signin будет срабатывать LocalAuthGuard и вызывать стратегию LocalStrategy
   @UseGuards(LocalAuthGuard)
   @Post('signin')
-  login(@Req() request) {
-    //Возвращаем данные пользователя,
-    // которые были добавлены к объекту запроса при срабатывании LocalAuthGuard
-    // путём вызова метода validate() в LocalStrategy
-    return bigintStringify(request.user);
+  async login(@Req() request) {
+    return await this.authService.login(request.user.id, request.user.name);
   }
 }

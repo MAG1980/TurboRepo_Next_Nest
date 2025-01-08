@@ -35,8 +35,9 @@ export const signIn = async (
     await createSession({
       user: {
         id: result.id,
-        name: result.name
-      }
+        name: result.name,
+      },
+      accessToken: result.accessToken,
     })
     redirect('/?updated=true')
   } else {
