@@ -2,7 +2,6 @@ import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
-import { bigintStringify } from '../../helpers/bigint.stringify';
 
 @Controller('auth')
 export class AuthController {

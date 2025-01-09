@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UserService } from '../user/user.service';
-import { bigintStringify } from '../../helpers/bigint.stringify';
 import { verify } from 'argon2';
 import { AuthJwtPayload } from './types';
 import { JwtService } from '@nestjs/jwt';
@@ -21,12 +20,15 @@ export class AuthService {
     const user = await this.userService.findByEmail(createUserDto.email);
 
     if (user) {
-      console.log(user);
       throw new ConflictException('User already exists');
     }
 
-    const createdUser = await this.userService.create(createUserDto);
-    return bigintStringify(createdUser);
+    //Создание нового пользователя
+    //В случае успешной регистрации возвращаем данные пользователя
+    //Ни в коем случае не возвращаем пароль после успешной регистрации
+    //Т.к. данные пользователя в итоге будут добавлены к request
+    //TODO: исключить возможность возвращения даже хешированного пароля
+    return await this.userService.create(createUserDto);
   }
 
   async validateLocalUser(email: string, password: string) {
@@ -48,12 +50,10 @@ export class AuthService {
   }
 
   async login(userId: number, name?: string) {
-    const { accessToken } = await this.generateTokens(bigintStringify(userId));
+    const { accessToken } = await this.generateTokens(userId);
 
     return {
-      //В БД request.user.id определен как bigint
-      //bigintStringify преобразует bigint в строку, т.к. JS этого не умеет
-      id: bigintStringify(userId),
+      id: userId,
       name,
       accessToken,
     };
