@@ -1,7 +1,8 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -17,5 +18,11 @@ export class AuthController {
   @Post('signin')
   async login(@Req() request) {
     return await this.authService.login(request.user.id, request.user.name);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('protected')
+  getAll(@Req() request) {
+    return `Now you can access this protected API! This is your ID: ${request.user.id}`;
   }
 }

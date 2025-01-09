@@ -74,4 +74,15 @@ export class AuthService {
     //Т.к. данные пользователя в итоге будут добавлены к request
     return { accessToken };
   }
+
+  async validateJwtUser(userId: number) {
+    const user = await this.userService.findById(userId);
+
+    if (!user) {
+      //Пользователь не найден, но сообщать об этом не следует в целях повышения безопасности
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    return { id: user.id };
+  }
 }
