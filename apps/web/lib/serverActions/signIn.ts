@@ -39,7 +39,7 @@ export const signIn = async (
       },
       accessToken: result.accessToken,
     })
-    redirect('/?updated=true')
+    redirect('/')
   } else {
     return {
       message:
