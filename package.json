@@ -7,7 +7,7 @@
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "prepare": "husky install",
-    "pre-commit": "turbo lint-staged"
+    "pre-commit": "turbo lint-staged --concurrency=1"
   },
   "devDependencies": {
     "husky": "^8.0.0",
