@@ -1,34 +1,31 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Inject, Injectable } from '@nestjs/common';
-import jwtConfig from '../config/jwt.config';
-import { ConfigService, ConfigType } from '@nestjs/config';
+import {  ConfigType } from '@nestjs/config';
 import { AuthJwtPayload } from '../types';
 import { AuthService } from '../auth.service';
+import refreshConfig from "../config/refresh.config";
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class RefreshTokenStrategy extends PassportStrategy(Strategy,'refresh-jwt') {
   constructor(
     //Внедрение экземпляра объекта конфигурации с помощью токена jwtConfig.KEY
-    @Inject(jwtConfig.KEY)
-    private jwtConfiguration: ConfigType<typeof jwtConfig>,
+    @Inject(refreshConfig.KEY)
+    private refreshTokenConfig: ConfigType<typeof refreshConfig>,
     private readonly authService: AuthService,
-    private readonly configService: ConfigService,
+    // private readonly configService: ConfigService,
   ) {
     super({
-      //Получать токен из AuthBearer-заголовка запроса
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      //Получать токен из свойства refresh тела запроса
+      jwtFromRequest: ExtractJwt.fromBodyField('refresh'),
       //Секретный JWT-ключ для валидации полученных данных
       //Получение секретного ключа с помощью экземпляра объекта конфигурации
-      // secretOrKey: jwtConfiguration.secret,
-      secretOrKey: configService.get<typeof jwtConfig>('jwt.secret'),
+      secretOrKey: refreshTokenConfig.secret,
+      // Получение секретного ключа с помощью ConfigService
+      // secretOrKey: configService.get<typeof refreshConfig>('refresh-jwt.secret'),
       //Запретить использование просроченного токена
       ignoreExpiration: false,
     });
-    //Получение JWT-secret с помощью пространства имён (токена), переданного в метод registerAs() '@nestjs/config', возвращающий объект конфигурации.
-    console.log({ secret: configService.get<string>('jwt.secret') });
-    //Получение секретного ключа с помощью экземпляра объекта конфигурации
-    console.log({ jwtConfiguration });
   }
 
   /*Прикреплённый к соответствующему методу контроллера Guard вызовет связанную с ним стратегию.
@@ -41,6 +38,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const userId = payload.sub;
 
     //Возвращаемый объект будет добавлен к request в виде свойства: request.user
-    return this.authService.validateJwtUser(userId);
+    return this.authService.validateRefreshToken(userId);
   }
 }

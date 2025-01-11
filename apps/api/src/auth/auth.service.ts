@@ -91,4 +91,31 @@ export class AuthService {
 
     return { id: user.id };
   }
+
+  /**
+   * Временная реализация, до тех пор, пока не будет реализован отзыв токена при logout.
+   * @param userId
+   */
+  async validateRefreshToken(userId: number) {
+    const user = await this.userService.findById(userId);
+
+    if (!user) {
+      //Пользователь не найден, но сообщать об этом не следует в целях повышения безопасности
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    return { id: user.id };
+  }
+
+  async refreshToken(userId:number, name?:string) {
+    //ToDo: Реализовать отзыв токена
+    const { accessToken, refreshToken } = await this.generateTokens(userId);
+
+    return {
+      id: userId,
+      name,
+      accessToken,
+      refreshToken
+    };
+  }
 }
