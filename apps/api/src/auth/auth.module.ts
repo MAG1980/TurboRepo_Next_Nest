@@ -7,11 +7,13 @@ import { JwtModule } from '@nestjs/jwt';
 import jwtConfig from './config/jwt.config';
 import { ConfigModule } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import refreshConfig from "./config/refresh.config";
 
 @Module({
   imports: [
     //Регистрирует объект конфигурации в модуле.
     ConfigModule.forFeature(jwtConfig),
+    ConfigModule.forFeature(refreshConfig),
     //.asProvider() преобразует конфигурацию с пространством имен в поставщика.
     JwtModule.registerAsync(jwtConfig.asProvider()),
     UserModule,

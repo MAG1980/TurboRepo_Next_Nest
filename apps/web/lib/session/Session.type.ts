@@ -4,5 +4,5 @@ export type Session = {
     name: string;
   };
   accessToken: string,
-  // refreshToken: string
+  refreshToken: string
 };

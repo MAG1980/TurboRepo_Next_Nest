@@ -1,5 +1,5 @@
 import {
-  ConflictException,
+  ConflictException, Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -8,12 +8,16 @@ import { UserService } from '../user/user.service';
 import { verify } from 'argon2';
 import { AuthJwtPayload } from './types';
 import { JwtService } from '@nestjs/jwt';
+import refreshConfig from "./config/refresh.config";
+import { ConfigType } from "@nestjs/config";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    //Внедрение экземпляра объекта конфигурации с помощью токена refreshConfig.KEY(namespace="refresh-jwt")
+    @Inject(refreshConfig.KEY) private readonly refreshTokenConfig: ConfigType<typeof refreshConfig>
   ) {}
 
   async registerUser(createUserDto: CreateUserDto) {
@@ -50,29 +54,31 @@ export class AuthService {
   }
 
   async login(userId: number, name?: string) {
-    const { accessToken } = await this.generateTokens(userId);
+    const { accessToken, refreshToken } = await this.generateTokens(userId);
 
     return {
       id: userId,
       name,
       accessToken,
+      refreshToken
     };
   }
 
   async generateTokens(userId: number) {
     const payload: AuthJwtPayload = { sub: userId };
 
-    const [accessToken] = await Promise.all([
+    const [accessToken, refreshToken] = await Promise.all([
       //В AuthModule был зарегистрирован JwtModule с jwtConfig в качестве провайдера,
       //содержащий signOptions.expiresIn, поэтому повторная передача свойства expiresIn не требуется,
       this.jwtService.signAsync(payload),
+      this.jwtService.signAsync(payload, this.refreshTokenConfig)
     ]);
 
     //Возвращаем access token
     //В случае успешной аутентификации возвращаем данные пользователя
     //Ни в коем случае не возвращаем пароль после успешной аутентификации
     //Т.к. данные пользователя в итоге будут добавлены к request
-    return { accessToken };
+    return { accessToken, refreshToken };
   }
 
   async validateJwtUser(userId: number) {
