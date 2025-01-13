@@ -27,7 +27,7 @@ export const refreshToken = async (
     const { accessToken, refreshToken } = await response.json();
     //Установка новых токенов в session-cookie
     const updatedResponse = await fetch(
-      `http://localhost:3000/api/auth/update`,
+      `${process.env.NEXT_PUBLIC_FRONTEND_URL}/api/auth/update`,
       {
         method: 'POST',
         body: JSON.stringify({ accessToken, refreshToken }),
