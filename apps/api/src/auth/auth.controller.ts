@@ -11,7 +11,7 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
-import { RefreshAuthGuard } from "./guards/refresh-auth/refresh-auth.guard";
+import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -39,7 +39,8 @@ export class AuthController {
 
   @UseGuards(RefreshAuthGuard)
   @Post('refresh')
-  refreshToken(@Req() request){
+  //Генерация новых JWT-токенов (refreshToken и accessToken)
+  refreshToken(@Req() request) {
     return this.authService.refreshToken(request.user.id, request.user.name);
   }
 }

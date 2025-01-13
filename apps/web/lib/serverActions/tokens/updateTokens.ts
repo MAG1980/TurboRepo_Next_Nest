@@ -4,6 +4,11 @@ import { Session } from '@/lib/session/Session.type';
 import { getEncodedSecretKey } from '@/lib/session/getEncodedSecretKey';
 import { createSession } from '@/lib/session/createSession';
 
+/**
+ * Обновление accessToken и refreshToken в httpOnly cookie с названием session,
+ * хранящей данные аутентифицированного пользователя.
+ */
+
 export const updateTokens = async ({
   accessToken,
   refreshToken,

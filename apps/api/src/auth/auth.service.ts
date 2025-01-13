@@ -1,5 +1,6 @@
 import {
-  ConflictException, Inject,
+  ConflictException,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -8,8 +9,8 @@ import { UserService } from '../user/user.service';
 import { verify } from 'argon2';
 import { AuthJwtPayload } from './types';
 import { JwtService } from '@nestjs/jwt';
-import refreshConfig from "./config/refresh.config";
-import { ConfigType } from "@nestjs/config";
+import refreshConfig from './config/refresh.config';
+import { ConfigType } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +18,8 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     //Внедрение экземпляра объекта конфигурации с помощью токена refreshConfig.KEY(namespace="refresh-jwt")
-    @Inject(refreshConfig.KEY) private readonly refreshTokenConfig: ConfigType<typeof refreshConfig>
+    @Inject(refreshConfig.KEY)
+    private readonly refreshTokenConfig: ConfigType<typeof refreshConfig>,
   ) {}
 
   async registerUser(createUserDto: CreateUserDto) {
@@ -60,7 +62,7 @@ export class AuthService {
       id: userId,
       name,
       accessToken,
-      refreshToken
+      refreshToken,
     };
   }
 
@@ -71,7 +73,7 @@ export class AuthService {
       //В AuthModule был зарегистрирован JwtModule с jwtConfig в качестве провайдера,
       //содержащий signOptions.expiresIn, поэтому повторная передача свойства expiresIn не требуется,
       this.jwtService.signAsync(payload),
-      this.jwtService.signAsync(payload, this.refreshTokenConfig)
+      this.jwtService.signAsync(payload, this.refreshTokenConfig),
     ]);
 
     //Возвращаем access token
@@ -107,7 +109,8 @@ export class AuthService {
     return { id: user.id };
   }
 
-  async refreshToken(userId:number, name?:string) {
+  //Генерация новых JWT-токенов (refreshToken и accessToken)
+  async refreshToken(userId: number, name?: string) {
     //ToDo: Реализовать отзыв токена
     const { accessToken, refreshToken } = await this.generateTokens(userId);
 
@@ -115,7 +118,7 @@ export class AuthService {
       id: userId,
       name,
       accessToken,
-      refreshToken
+      refreshToken,
     };
   }
 }
