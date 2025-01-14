@@ -121,4 +121,14 @@ export class AuthService {
       refreshToken,
     };
   }
+
+  async validateGoogleUser(googleUser: CreateUserDto) {
+    //Проверка на существование пользователя в БД
+    const user = await this.userService.findByEmail(googleUser.email);
+    if (user) {
+      return user;
+    }
+    //Создаём и возвращаем нового пользователя, если он не был найден в БД
+    return this.userService.create(googleUser);
+  }
 }

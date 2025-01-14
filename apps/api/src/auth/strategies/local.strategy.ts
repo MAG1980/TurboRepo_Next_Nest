@@ -1,7 +1,7 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
 import { AuthService } from '../auth.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -19,6 +19,9 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   //В случае успешной проверки соответствия пароля и логина, возвращается объект пользователя,
   //который передается в AuthGuard и добавляется к объекту запроса в виде свойства:  request.user
   async validate(email: string, password: string) {
+    if (password === '') {
+      throw new UnauthorizedException('Password is required');
+    }
     return await this.authService.validateLocalUser(email, password);
   }
 }

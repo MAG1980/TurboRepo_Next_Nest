@@ -12,6 +12,7 @@ import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
 import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
+import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -42,5 +43,25 @@ export class AuthController {
   //Генерация новых JWT-токенов (refreshToken и accessToken)
   refreshToken(@Req() request) {
     return this.authService.refreshToken(request.user.id, request.user.name);
+  }
+
+  @UseGuards(GoogleAuthGuard)
+  @Get('google/login')
+  //Авторизация через Google OAuth c стратегией GoogleStrategy
+  //Перенаправляет пользователя на страницу аутентификации Google
+  //В случае успешной валидации в GoogleStrategy сервером Google будет выполнен редирект на 'auth/google/callback'
+  ///accessToken, refreshToken в данном случе генерируются сервером Google
+  //accessToken, refreshToken и данные профиля пользователя будут переданы в 'auth/google/callback
+  googleLogin() {
+    // return this.authService.googleLogin();
+  }
+
+  @UseGuards(GoogleAuthGuard)
+  @Get('google/callback')
+  //На данном этапе перед доступом к этому маршруту в GoogleStrategy будет вызываться метод 'validate'
+  //Получает данные от Google OAuth
+  googleCallback(@Req() request) {
+    console.log({ user: request?.user });
+    // return this.authService.googleCallback(request);
   }
 }
