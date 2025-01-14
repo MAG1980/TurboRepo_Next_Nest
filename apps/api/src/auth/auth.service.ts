@@ -55,7 +55,15 @@ export class AuthService {
     return { id: user.id, name: user.name };
   }
 
-  async login(userId: number, name?: string) {
+  async login(
+    userId: number,
+    name?: string,
+  ): Promise<{
+    id: number;
+    name: string;
+    accessToken: string;
+    refreshToken: string;
+  }> {
     const { accessToken, refreshToken } = await this.generateTokens(userId);
 
     return {

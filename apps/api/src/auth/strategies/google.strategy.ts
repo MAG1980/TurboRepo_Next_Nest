@@ -38,6 +38,9 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       password: '',
     });
 
+    //Удаляем пароль из данных пользователя, чтобы он не попал в request
+    delete user.password;
+
     //Данные пользователя будут добавлены в request.user
     done(null, user);
   }

@@ -5,8 +5,10 @@ import {
   Post,
   Req,
   Request,
+  Res,
   UseGuards,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
@@ -49,19 +51,34 @@ export class AuthController {
   @Get('google/login')
   //Авторизация через Google OAuth c стратегией GoogleStrategy
   //Перенаправляет пользователя на страницу аутентификации Google
-  //В случае успешной валидации в GoogleStrategy сервером Google будет выполнен редирект на 'auth/google/callback'
-  ///accessToken, refreshToken в данном случе генерируются сервером Google
-  //accessToken, refreshToken и данные профиля пользователя будут переданы в 'auth/google/callback
+  //GoogleStrategy.validate() принимает accessToken, refreshToken для валидации на сервер Google
+  //данные профиля пользователя, полученные от Google API в случае успешной аутентификации.
+  //На основе данных профиля пользователя производится поиск учётной записи в БД.
+  //Если пользователя нет в БД, то создает нового пользователя в БД.
+  //Путём вызова метода done() внутри validate() данные пользователя добавляются в request в виде свойства user
+  //и передаются в 'auth/google/callback', где генерируются JWT-токены.
   googleLogin() {
-    // return this.authService.googleLogin();
+    //Реализация не требуется, т.к. вся логика реализована в GoogleStrategy, которую вызывает GoogleAuthGuard
   }
 
   @UseGuards(GoogleAuthGuard)
   @Get('google/callback')
   //На данном этапе перед доступом к этому маршруту в GoogleStrategy будет вызываться метод 'validate'
   //Получает данные от Google OAuth
-  googleCallback(@Req() request) {
+  //import { Response } from 'express';
+  async googleCallback(@Req() request, @Res() response: Response) {
     console.log({ user: request?.user });
-    // return this.authService.googleCallback(request);
+    const userData = await this.authService.login(
+      request.user.id,
+      request.user.name,
+    );
+
+    const userId = `userId=${userData.id}`;
+    const name = `name=${userData.name}`;
+    const accessToken = `accessToken=${userData.accessToken}`;
+    const refreshToken = `refreshToken=${userData.refreshToken}`;
+    return response.redirect(
+      `http://localhost:3000/api/auth/google/callback?${userId}&${name}&${accessToken}&${refreshToken}`,
+    );
   }
 }
