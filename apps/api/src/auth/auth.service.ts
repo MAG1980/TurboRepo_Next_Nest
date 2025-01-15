@@ -139,4 +139,13 @@ export class AuthService {
     //Создаём и возвращаем нового пользователя, если он не был найден в БД
     return this.userService.create(googleUser);
   }
+
+  async validateYandexUser(yandexUser: CreateUserDto) {
+    const user = await this.userService.findByEmail(yandexUser.email);
+    if (user) {
+      return user;
+    }
+
+    return this.userService.create(yandexUser);
+  }
 }

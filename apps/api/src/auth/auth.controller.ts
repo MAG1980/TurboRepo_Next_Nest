@@ -15,6 +15,7 @@ import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
 import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
+import { YandexAuthGuard } from './guards/yandex-auth/yandex-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -67,7 +68,6 @@ export class AuthController {
   //Получает данные от Google OAuth
   //import { Response } from 'express';
   async googleCallback(@Req() request, @Res() response: Response) {
-    console.log({ user: request?.user });
     const userData = await this.authService.login(
       request.user.id,
       request.user.name,
@@ -79,6 +79,29 @@ export class AuthController {
     const refreshToken = `refreshToken=${userData.refreshToken}`;
     return response.redirect(
       `http://localhost:3000/api/auth/google/callback?${userId}&${name}&${accessToken}&${refreshToken}`,
+    );
+  }
+
+  @UseGuards(YandexAuthGuard)
+  @Get('yandex/login')
+  yandexLogin() {
+    //Реализация не требуется, т.к. вся логика реализована в YandexStrategy, которую вызывает YandexAuthGuard
+  }
+
+  @UseGuards(YandexAuthGuard)
+  @Get('yandex/callback')
+  async yandexCallback(@Req() request, @Res() response: Response) {
+    const userData = await this.authService.login(
+      request.user.id,
+      request.user.name,
+    );
+
+    const userId = `userId=${userData.id}`;
+    const name = `name=${userData.name}`;
+    const accessToken = `accessToken=${userData.accessToken}`;
+    const refreshToken = `refreshToken=${userData.refreshToken}`;
+    return response.redirect(
+      `http://localhost:3000/api/auth/yandex/callback?${userId}&${name}&${accessToken}&${refreshToken}`,
     );
   }
 }

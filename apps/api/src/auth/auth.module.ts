@@ -11,6 +11,8 @@ import refreshConfig from './config/refresh.config';
 import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 import googleOauthConfig from './config/google-oauth.config';
 import { GoogleStrategy } from './strategies/google.strategy';
+import yandexOauthConfig from './config/yandex-oauth.config';
+import { YandexStrategy } from './strategies/yandex.strategy';
 
 @Module({
   imports: [
@@ -18,6 +20,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
     ConfigModule.forFeature(jwtConfig),
     ConfigModule.forFeature(refreshConfig),
     ConfigModule.forFeature(googleOauthConfig),
+    ConfigModule.forFeature(yandexOauthConfig),
     //.asProvider() преобразует конфигурацию с пространством имен в поставщика.
     JwtModule.registerAsync(jwtConfig.asProvider()),
     UserModule,
@@ -29,6 +32,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
     JwtStrategy,
     RefreshTokenStrategy,
     GoogleStrategy,
+    YandexStrategy,
   ],
 })
 export class AuthModule {}

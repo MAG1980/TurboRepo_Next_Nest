@@ -25,10 +25,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       //Запретить использование просроченного токена
       ignoreExpiration: false,
     });
-    //Получение JWT-secret с помощью пространства имён (токена), переданного в метод registerAs() '@nestjs/config', возвращающий объект конфигурации.
-    console.log({ secret: configService.get<string>('jwt.secret') });
-    //Получение секретного ключа с помощью экземпляра объекта конфигурации
-    console.log({ jwtConfiguration });
+    /*Получение JWT-secret с помощью пространства имён (токена), переданного в метод registerAs() '@nestjs/config', возвращающий объект конфигурации.
+    console.log({ secret: configService.get<string>('jwt.secret') });*/
+    /*Получение секретного ключа с помощью экземпляра объекта конфигурации
+    console.log({ jwtConfiguration });*/
   }
 
   /*Прикреплённый к соответствующему методу контроллера Guard вызовет связанную с ним стратегию.
