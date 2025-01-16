@@ -1,13 +1,17 @@
+import { Request } from 'express';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Inject, Injectable } from '@nestjs/common';
-import {  ConfigType } from '@nestjs/config';
+import { ConfigType } from '@nestjs/config';
 import { AuthJwtPayload } from '../types';
 import { AuthService } from '../auth.service';
-import refreshConfig from "../config/refresh.config";
+import refreshConfig from '../config/refresh.config';
 
 @Injectable()
-export class RefreshTokenStrategy extends PassportStrategy(Strategy,'refresh-jwt') {
+export class RefreshTokenStrategy extends PassportStrategy(
+  Strategy,
+  'refresh-jwt',
+) {
   constructor(
     //Внедрение экземпляра объекта конфигурации с помощью токена jwtConfig.KEY
     @Inject(refreshConfig.KEY)
@@ -25,6 +29,8 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy,'refresh-jwt
       // secretOrKey: configService.get<typeof refreshConfig>('refresh-jwt.secret'),
       //Запретить использование просроченного токена
       ignoreExpiration: false,
+      //Предоставить доступ к объекту Request в методе validate().
+      passReqToCallback: true,
     });
   }
 
@@ -33,11 +39,14 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy,'refresh-jwt
   будет получать токен из AuthBearer-заголовка запроса и с помощью секретного ключа проверять его валидность.
   Если проверка на валидность окажется успешной, будет вызван метод validate с payload, который является расшифрованным токеном.*/
 
-  validate(payload: AuthJwtPayload) {
+  validate(request: Request, payload: AuthJwtPayload) {
     //Объект payload создаётся в AuthService.generateTokens() перед подписанием токена и содержит userId.
     const userId = payload.sub;
 
+    //Получение refreshToken из Request (строка №24)
+    const refreshToken = request.body.refresh;
+
     //Возвращаемый объект будет добавлен к request в виде свойства: request.user
-    return this.authService.validateRefreshToken(userId);
+    return this.authService.validateRefreshToken(userId, refreshToken);
   }
 }

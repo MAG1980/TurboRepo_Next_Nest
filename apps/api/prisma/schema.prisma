@@ -8,29 +8,29 @@ datasource db {
 }
 
 model comments {
-  id        Int     @id(map: "comments_pk") @default(sequence())
+  id        Int     @id(map: "comments_pk") @default(sequence(maxValue: 2147483647))
   text      String?
-  author_id Int     @default(sequence())
-  post_id   Int     @default(sequence())
+  author_id Int     @default(sequence(maxValue: 2147483647))
+  post_id   Int     @default(sequence(maxValue: 2147483647))
   posts     posts   @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "comments_posts_id_fk")
   users     users   @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "comments_users_id_fk")
 }
 
 model groups {
-  id   Int     @id(map: "groups_pk") @default(sequence())
+  id   Int     @id(map: "groups_pk") @default(sequence(maxValue: 2147483647))
   name String?
 }
 
 model groups_users {
-  user_id  Int @default(sequence())
-  group_id Int @default(sequence())
+  user_id  Int @default(sequence(maxValue: 2147483647))
+  group_id Int @default(sequence(maxValue: 2147483647))
 
   @@id([group_id, user_id], map: "groups_users_pk")
 }
 
 model posts {
-  id        Int        @id(map: "posts_pk") @default(sequence())
-  author_id Int        @default(sequence())
+  id        Int        @id(map: "posts_pk") @default(sequence(maxValue: 2147483647))
+  author_id Int        @default(sequence(maxValue: 2147483647))
   title     String?
   content   String?
   comments  comments[]
@@ -38,18 +38,19 @@ model posts {
 }
 
 model profile_info {
-  id       Int   @id(map: "profile_info_pk") @default(sequence())
-  user_id  Int   @default(sequence())
+  id       Int   @id(map: "profile_info_pk") @default(sequence(maxValue: 2147483647))
+  user_id  Int   @default(sequence(maxValue: 2147483647))
   metadata Json?
   users    users @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "profile_info_users_id_fk")
 }
 
 model users {
-  name         String?
-  id           Int            @id(map: "users_pk") @default(sequence())
-  email        String?        @unique
-  password     String?
-  comments     comments[]
-  posts        posts[]
-  profile_info profile_info[]
+  name               String?
+  id                 Int            @id(map: "users_pk") @default(sequence(maxValue: 2147483647))
+  email              String?        @unique
+  password           String?
+  hashedRefreshToken String?
+  comments           comments[]
+  posts              posts[]
+  profile_info       profile_info[]
 }

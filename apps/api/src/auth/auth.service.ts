@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UserService } from '../user/user.service';
-import { verify } from 'argon2';
+import { hash, verify } from 'argon2';
 import { AuthJwtPayload } from './types';
 import { JwtService } from '@nestjs/jwt';
 import refreshConfig from './config/refresh.config';
@@ -65,6 +65,8 @@ export class AuthService {
     refreshToken: string;
   }> {
     const { accessToken, refreshToken } = await this.generateTokens(userId);
+    const hashedRefreshToken = await hash(refreshToken);
+    await this.userService.updateHashedRefreshToken(userId, hashedRefreshToken);
 
     return {
       id: userId,
@@ -106,7 +108,7 @@ export class AuthService {
    * Временная реализация, до тех пор, пока не будет реализован отзыв токена при logout.
    * @param userId
    */
-  async validateRefreshToken(userId: number) {
+  async validateRefreshToken(userId: number, refreshToken: string) {
     const user = await this.userService.findById(userId);
 
     if (!user) {
@@ -114,13 +116,31 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    //Если забыть await, то всегда будет true из-за приведения типа Promise.
+    const isRefreshTokenMatched = await verify(
+      user.hashedRefreshToken,
+      refreshToken,
+    );
+
+    if (!isRefreshTokenMatched) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
     return { id: user.id };
   }
 
-  //Генерация новых JWT-токенов (refreshToken и accessToken)
+  /**
+   * Обновление JWT-токенов (refreshToken и accessToken), в том числе и обновление hashedRefreshToken в БД.
+   * @param userId
+   * @param name
+   */
   async refreshToken(userId: number, name?: string) {
     //ToDo: Реализовать отзыв токена
     const { accessToken, refreshToken } = await this.generateTokens(userId);
+
+    //Обновление hashedRefreshToken в БД.
+    const hashedRefreshToken = await hash(refreshToken);
+    await this.userService.updateHashedRefreshToken(userId, hashedRefreshToken);
 
     return {
       id: userId,
