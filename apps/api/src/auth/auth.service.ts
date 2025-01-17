@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -66,6 +67,7 @@ export class AuthService {
   }> {
     const { accessToken, refreshToken } = await this.generateTokens(userId);
     const hashedRefreshToken = await hash(refreshToken);
+
     await this.userService.updateHashedRefreshToken(userId, hashedRefreshToken);
 
     return {
@@ -74,6 +76,19 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+
+  async logOut(userId: number) {
+    const result = await this.userService.updateHashedRefreshToken(
+      userId,
+      null,
+    );
+
+    if (!result) {
+      throw new BadRequestException();
+    }
+
+    return result;
   }
 
   async generateTokens(userId: number) {
@@ -106,7 +121,8 @@ export class AuthService {
 
   /**
    * Временная реализация, до тех пор, пока не будет реализован отзыв токена при logout.
-   * @param userId
+   * @param userId: number
+   * @param refreshToken: string
    */
   async validateRefreshToken(userId: number, refreshToken: string) {
     const user = await this.userService.findById(userId);

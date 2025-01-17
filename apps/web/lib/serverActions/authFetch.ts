@@ -48,7 +48,7 @@ export const authFetch = async (
       //Повторяем запрос с новым accessToken
       response = await fetch(url, options);
     }
-
-    return response;
   }
+
+  return response;
 };

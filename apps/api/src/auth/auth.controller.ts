@@ -33,6 +33,15 @@ export class AuthController {
     return await this.authService.login(request.user.id, request.user.name);
   }
 
+  //Эндпойнт защищён от неаутентифицированных пользователей.
+  @UseGuards(JwtAuthGuard)
+  @Post('signout')
+  async logOut(@Request() request, @Res() response: Response) {
+    //Если не использовать JwtAuthGuard, то в request будет отсутствовать поле user.
+    const data = await this.authService.logOut(request.user.id);
+    return response.json(data.id);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('protected')
   getAll(@Request() request) {

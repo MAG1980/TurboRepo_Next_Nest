@@ -8,7 +8,6 @@ export class UserService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
-    console.log(createUserDto);
     const { password, ...user } = createUserDto;
     const hashedPassword = await hash(password);
     console.log(hashedPassword);
@@ -36,8 +35,11 @@ export class UserService {
     });
   }
 
-  async updateHashedRefreshToken(id: number, hashedRefreshToken: string) {
-    this.prismaService.users.update({
+  async updateHashedRefreshToken(
+    id: number,
+    hashedRefreshToken: string | null,
+  ) {
+    return this.prismaService.users.update({
       where: {
         id,
       },
