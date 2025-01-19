@@ -15,6 +15,7 @@ import yandexOauthConfig from './config/yandex-oauth.config';
 import { YandexStrategy } from './strategies/yandex.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
+import { RoleAuthGuard } from './guards/role-auth/role-auth.guard';
 
 @Module({
   imports: [
@@ -35,12 +36,20 @@ import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
     RefreshTokenStrategy,
     GoogleStrategy,
     YandexStrategy,
+    //Порядок перечисления провайдеров важен. От него зависит порядок их срабатывания.
+    //JwtAuthGuard должен быть зарегистрирован перед RoleAuthGuard,
+    //т.к. он добавляет в Request свойство user, которое требуется для корректной работы RoleAuthGuard.
     {
       //import { APP_GUARD } from '@nestjs/core';
       provide: APP_GUARD,
       //Регистрация провайдера с токеном APP_GUARD приведёт к тому,
       //что все контроллеры, данного модуля по умолчанию будут защищены JwtAuthGuard.
-      useClass: JwtAuthGuard,
+      useClass: JwtAuthGuard, //@UseGuards(JwtAuthGuard)
+    },
+    {
+      //Повторная регистрация провайдера с токеном APP_GUARD не приввдёт к его перезаписи,
+      provide: APP_GUARD,
+      useClass: RoleAuthGuard, //@UseGuards(RoleAuthGuard)
     },
   ],
 })

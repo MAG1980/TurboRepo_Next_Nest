@@ -15,7 +15,8 @@ import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
 import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
 import { YandexAuthGuard } from './guards/yandex-auth/yandex-auth.guard';
-import { Public } from './decorators';
+import { Public, Roles } from './decorators';
+import { Role } from '@prisma/client';
 
 @Controller('auth')
 export class AuthController {
@@ -44,6 +45,21 @@ export class AuthController {
   }
 
   //Провайдер с токеном APP_GUARD, зарегистрированный на уровне модуля, защищает все эндпойнты с помощью JwtAuthGuard.
+
+  //Декораторы добавляют функции-обертки для методов контроллера.
+  //Чем ближе к методу в коде находится декоратор, тем раньше он будет вызван.
+  //Данные, возвращаемые функциями-обёртками, будут доступны в области вызова внешних функций-обёрток.
+  //RoleAuthGuard использует данные Request.user.role для проверки наличия требуемых ролей у пользователя.
+  //Если не расположить JwtAuthGuard, добавляющий в Request свойство user,
+  //ближе к контроллеру, чем RoleAuthGuard,
+  //то при срабатывании @Roles() в Request будут отсутствовать требуемые для его корректной работы данные: поле user.
+  //Если используется глобальная защита, то добавлять @UseGuards(JwtAuthGuard) не требуется, у него уже будет приоритет выше.
+  //Если глобальная защита использует несколько Guards, то они будут вызваны в порядке их приоритета:
+  //чем ближе к началу массива зарегистрирован провайдер, тем раньше он будет вызван (тем выше его приоритет)..
+  @Roles(Role.ADMIN, Role.EDITOR)
+  //Зарегистрированы в списке провайдеров модуля (включена GlobalGuard).
+  // @UseGuards(RoleAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Get('protected')
   getAll(@Request() request) {
     return {

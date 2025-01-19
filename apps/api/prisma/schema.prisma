@@ -50,7 +50,14 @@ model users {
   email              String?        @unique
   password           String?
   hashedRefreshToken String?
+  role               Role           @default(USER)
   comments           comments[]
   posts              posts[]
   profile_info       profile_info[]
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  USER
 }

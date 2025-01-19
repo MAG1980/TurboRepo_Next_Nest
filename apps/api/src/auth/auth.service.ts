@@ -53,7 +53,7 @@ export class AuthService {
     //В случае успешной аутентификации возвращаем данные пользователя
     //Ни в коем случае не возвращаем пароль после успешной аутентификации
     //Т.к. данные пользователя в итоге будут добавлены к request
-    return { id: user.id, name: user.name };
+    return { id: user.id, name: user.name, role: user.role };
   }
 
   async login(
@@ -116,7 +116,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return { id: user.id };
+    return { id: user.id, role: user.role };
   }
 
   /**
