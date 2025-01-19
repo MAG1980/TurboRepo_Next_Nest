@@ -33,7 +33,11 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('signin')
   async login(@Req() request) {
-    return await this.authService.login(request.user.id, request.user.name);
+    return await this.authService.login(
+      request.user.id,
+      request.user.name,
+      request.user.role,
+    );
   }
 
   //Провайдер с токеном APP_GUARD, зарегистрированный на уровне модуля, защищает все эндпойнты с помощью JwtAuthGuard.
@@ -100,14 +104,16 @@ export class AuthController {
     const userData = await this.authService.login(
       request.user.id,
       request.user.name,
+      request.user.role,
     );
 
     const userId = `userId=${userData.id}`;
     const name = `name=${userData.name}`;
     const accessToken = `accessToken=${userData.accessToken}`;
     const refreshToken = `refreshToken=${userData.refreshToken}`;
+    const role = `role=${userData.role}`;
     return response.redirect(
-      `http://localhost:3000/api/auth/google/callback?${userId}&${name}&${accessToken}&${refreshToken}`,
+      `http://localhost:3000/api/auth/google/callback?${userId}&${name}&${accessToken}&${refreshToken}&${role}`,
     );
   }
 
@@ -125,14 +131,16 @@ export class AuthController {
     const userData = await this.authService.login(
       request.user.id,
       request.user.name,
+      request.user.role,
     );
 
     const userId = `userId=${userData.id}`;
     const name = `name=${userData.name}`;
     const accessToken = `accessToken=${userData.accessToken}`;
     const refreshToken = `refreshToken=${userData.refreshToken}`;
+    const role = `role=${userData.role}`;
     return response.redirect(
-      `http://localhost:3000/api/auth/yandex/callback?${userId}&${name}&${accessToken}&${refreshToken}`,
+      `http://localhost:3000/api/auth/yandex/callback?${userId}&${name}&${accessToken}&${refreshToken}&${role}`,
     );
   }
 }
