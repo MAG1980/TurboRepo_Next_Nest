@@ -12,20 +12,22 @@ import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
-import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
 import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth/google-auth.guard';
 import { YandexAuthGuard } from './guards/yandex-auth/yandex-auth.guard';
+import { Public } from './decorators';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Public()
   @Post('signup')
   registerUser(@Body() createUserDto: CreateUserDto) {
     return this.authService.registerUser(createUserDto);
   }
 
+  @Public()
   //При запросе POST /auth/signin будет срабатывать LocalAuthGuard и вызывать стратегию LocalStrategy
   @UseGuards(LocalAuthGuard)
   @Post('signin')
@@ -33,8 +35,7 @@ export class AuthController {
     return await this.authService.login(request.user.id, request.user.name);
   }
 
-  //Эндпойнт защищён от неаутентифицированных пользователей.
-  @UseGuards(JwtAuthGuard)
+  //Провайдер с токеном APP_GUARD, зарегистрированный на уровне модуля, защищает все эндпойнты с помощью JwtAuthGuard.
   @Post('signout')
   async logOut(@Request() request, @Res() response: Response) {
     //Если не использовать JwtAuthGuard, то в request будет отсутствовать поле user.
@@ -42,7 +43,7 @@ export class AuthController {
     return response.json(data.id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  //Провайдер с токеном APP_GUARD, зарегистрированный на уровне модуля, защищает все эндпойнты с помощью JwtAuthGuard.
   @Get('protected')
   getAll(@Request() request) {
     return {
@@ -50,6 +51,7 @@ export class AuthController {
     };
   }
 
+  @Public()
   @UseGuards(RefreshAuthGuard)
   @Post('refresh')
   //Генерация новых JWT-токенов (refreshToken и accessToken)
@@ -57,6 +59,7 @@ export class AuthController {
     return this.authService.refreshToken(request.user.id, request.user.name);
   }
 
+  @Public()
   @UseGuards(GoogleAuthGuard)
   @Get('google/login')
   //Авторизация через Google OAuth c стратегией GoogleStrategy
@@ -71,6 +74,7 @@ export class AuthController {
     //Реализация не требуется, т.к. вся логика реализована в GoogleStrategy, которую вызывает GoogleAuthGuard
   }
 
+  @Public()
   @UseGuards(GoogleAuthGuard)
   @Get('google/callback')
   //На данном этапе перед доступом к этому маршруту в GoogleStrategy будет вызываться метод 'validate'
@@ -91,12 +95,14 @@ export class AuthController {
     );
   }
 
+  @Public()
   @UseGuards(YandexAuthGuard)
   @Get('yandex/login')
   yandexLogin() {
     //Реализация не требуется, т.к. вся логика реализована в YandexStrategy, которую вызывает YandexAuthGuard
   }
 
+  @Public()
   @UseGuards(YandexAuthGuard)
   @Get('yandex/callback')
   async yandexCallback(@Req() request, @Res() response: Response) {

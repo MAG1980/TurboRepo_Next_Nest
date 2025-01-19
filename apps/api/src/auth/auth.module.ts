@@ -13,6 +13,8 @@ import googleOauthConfig from './config/google-oauth.config';
 import { GoogleStrategy } from './strategies/google.strategy';
 import yandexOauthConfig from './config/yandex-oauth.config';
 import { YandexStrategy } from './strategies/yandex.strategy';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -33,6 +35,13 @@ import { YandexStrategy } from './strategies/yandex.strategy';
     RefreshTokenStrategy,
     GoogleStrategy,
     YandexStrategy,
+    {
+      //import { APP_GUARD } from '@nestjs/core';
+      provide: APP_GUARD,
+      //Регистрация провайдера с токеном APP_GUARD приведёт к тому,
+      //что все контроллеры, данного модуля по умолчанию будут защищены JwtAuthGuard.
+      useClass: JwtAuthGuard,
+    },
   ],
 })
 export class AuthModule {}
